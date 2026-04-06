@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>デッキ一覧 | ツイン・スターリング</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container">
+        <p class="brand"><a href="./index.html">ツイン・スターリング</a></p>
+        <nav class="top-nav">
+          <a href="./index.html">ホーム</a>
+          <a href="./decks.html" aria-current="page">デッキ一覧</a>
+          <a href="./articles.html">読み物</a>
+          <a href="./rules.html">ルール</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container page-main">
+      <section class="panel">
+        <p class="badge">Decks</p>
+        <h1>デッキ一覧（土台）</h1>
+        <p>
+          ここでは公開デッキを一覧表示します。現在はモックデータで表示しています。
+          将来的に JSON やフォーム連携へ拡張しやすい構造にしています。
+        </p>
+      </section>
+
+      <section class="panel">
+        <h2>フィルタ（準備中）</h2>
+        <div class="chips">
+          <span class="chip">全て</span>
+          <span class="chip">初心者向け</span>
+          <span class="chip">中速</span>
+          <span class="chip">コンボ</span>
+          <span class="chip">多人数戦向け</span>
+        </div>
+      </section>
+
+      <section class="card-grid">
+        <article class="list-card">
+          <h3>月光のステージ</h3>
+          <p class="meta">主演: エルサ / ラプンツェル | 主題歌: 輝く未来</p>
+          <p>継続的なドローと盤面維持で終盤に伸びるバランス型。</p>
+        </article>
+        <article class="list-card">
+          <h3>海底オーケストラ</h3>
+          <p class="meta">主演: アリエル / セバスチャン | 主題歌: アンダー・ザ・シー</p>
+          <p>テンポ重視で序盤から展開するアグロ寄り構成。</p>
+        </article>
+        <article class="list-card">
+          <h3>夢の王国レビュー</h3>
+          <p class="meta">主演: ミッキー / ミニー | 主題歌: 星に願いを</p>
+          <p>全体シナジーを活かして安定してロアを積み上げる。</p>
+        </article>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p>このページは非公式のファンルール案です。</p>
+      </div>
+    </footer>
+  </body>
+</html>
