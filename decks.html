@@ -23,41 +23,20 @@
     <main class="container page-main">
       <section class="panel">
         <p class="badge">Decks</p>
-        <h1>デッキ一覧（土台）</h1>
+        <h1>デッキ一覧</h1>
         <p>
-          ここでは公開デッキを一覧表示します。現在はモックデータで表示しています。
-          将来的に JSON やフォーム連携へ拡張しやすい構造にしています。
+          公開デッキをタグで絞り込めます。データはページ内の JSON から生成しています（静的ホストのまま運用可能）。
+          カード名・デッキ名はサイト用の作例です。
         </p>
       </section>
 
-      <section class="panel">
-        <h2>フィルタ（準備中）</h2>
-        <div class="chips">
-          <span class="chip">全て</span>
-          <span class="chip">初心者向け</span>
-          <span class="chip">中速</span>
-          <span class="chip">コンボ</span>
-          <span class="chip">多人数戦向け</span>
-        </div>
+      <section class="panel" aria-labelledby="filter-heading">
+        <h2 id="filter-heading">タグでフィルタ</h2>
+        <p class="filter-hint" id="deck-count" aria-live="polite"></p>
+        <div class="chips" id="deck-filters" role="group" aria-label="デッキのタグ"></div>
       </section>
 
-      <section class="card-grid">
-        <article class="list-card">
-          <h3>月光のステージ</h3>
-          <p class="meta">主演: エルサ / ラプンツェル | 主題歌: 輝く未来</p>
-          <p>継続的なドローと盤面維持で終盤に伸びるバランス型。</p>
-        </article>
-        <article class="list-card">
-          <h3>海底オーケストラ</h3>
-          <p class="meta">主演: アリエル / セバスチャン | 主題歌: アンダー・ザ・シー</p>
-          <p>テンポ重視で序盤から展開するアグロ寄り構成。</p>
-        </article>
-        <article class="list-card">
-          <h3>夢の王国レビュー</h3>
-          <p class="meta">主演: ミッキー / ミニー | 主題歌: 星に願いを</p>
-          <p>全体シナジーを活かして安定してロアを積み上げる。</p>
-        </article>
-      </section>
+      <section class="card-grid" id="deck-list" aria-live="polite"></section>
     </main>
 
     <aside class="ad-banner" aria-label="広告">
@@ -74,5 +53,112 @@
         <p>このページは非公式のファンルール案です。</p>
       </div>
     </footer>
+
+    <script>
+      const DECK_TAGS = [
+        { id: "all", label: "全て" },
+        { id: "beginner", label: "初心者向け" },
+        { id: "midrange", label: "中速" },
+        { id: "combo", label: "コンボ" },
+        { id: "multiplayer", label: "多人数戦向け" },
+      ];
+
+      const DECKS = [
+        {
+          title: "月光のステージ",
+          leads: "主演: エルサ / ラプンツェル | 主題歌: 輝く未来",
+          summary: "継続的なドローと盤面維持で終盤に伸びるバランス型。",
+          tags: ["midrange", "multiplayer"],
+        },
+        {
+          title: "海底オーケストラ",
+          leads: "主演: アリエル / セバスチャン | 主題歌: アンダー・ザ・シー",
+          summary: "テンポ重視で序盤から展開するアグロ寄り構成。",
+          tags: ["beginner", "multiplayer"],
+        },
+        {
+          title: "夢の王国レビュー",
+          leads: "主演: ミッキー / ミニー | 主題歌: 星に願いを",
+          summary: "全体シナジーを活かして安定してロアを積み上げる。",
+          tags: ["beginner", "midrange"],
+        },
+        {
+          title: "星屑カーテンコール",
+          leads: "主演: ティンカー・ベル / ピーター・パン | 主題歌: 第二の星へ",
+          summary: "小回りの効くコンボパーツを束ね、一気にロアを狙う構成（例）。",
+          tags: ["combo", "multiplayer"],
+        },
+      ];
+
+      const filterEl = document.getElementById("deck-filters");
+      const listEl = document.getElementById("deck-list");
+      const countEl = document.getElementById("deck-count");
+      let activeTag = "all";
+
+      function deckMatches(deck) {
+        if (activeTag === "all") return true;
+        return deck.tags.includes(activeTag);
+      }
+
+      function renderFilters() {
+        filterEl.innerHTML = "";
+        DECK_TAGS.forEach((tag) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "chip chip-button";
+          btn.textContent = tag.label;
+          btn.dataset.tag = tag.id;
+          btn.setAttribute("aria-pressed", tag.id === activeTag ? "true" : "false");
+          btn.addEventListener("click", () => {
+            activeTag = tag.id;
+            renderFilters();
+            renderList();
+          });
+          filterEl.appendChild(btn);
+        });
+      }
+
+      function renderList() {
+        const visible = DECKS.filter(deckMatches);
+        countEl.textContent =
+          visible.length === DECKS.length
+            ? `全 ${DECKS.length} 件を表示`
+            : `${visible.length} / ${DECKS.length} 件を表示（タグ: ${DECK_TAGS.find((t) => t.id === activeTag)?.label ?? activeTag}）`;
+
+        listEl.innerHTML = "";
+        if (visible.length === 0) {
+          const empty = document.createElement("p");
+          empty.className = "empty-state";
+          empty.textContent = "このタグに該当するデッキがありません。別のタグを選んでください。";
+          listEl.appendChild(empty);
+          return;
+        }
+
+        visible.forEach((deck) => {
+          const card = document.createElement("article");
+          card.className = "list-card";
+          const h = document.createElement("h3");
+          h.textContent = deck.title;
+          const meta = document.createElement("p");
+          meta.className = "meta";
+          meta.textContent = deck.leads;
+          const body = document.createElement("p");
+          body.textContent = deck.summary;
+          const tagRow = document.createElement("p");
+          tagRow.className = "tag-row";
+          deck.tags.forEach((tid) => {
+            const span = document.createElement("span");
+            span.className = "tag-pill";
+            span.textContent = DECK_TAGS.find((t) => t.id === tid)?.label ?? tid;
+            tagRow.appendChild(span);
+          });
+          card.append(h, meta, body, tagRow);
+          listEl.appendChild(card);
+        });
+      }
+
+      renderFilters();
+      renderList();
+    </script>
   </body>
 </html>
